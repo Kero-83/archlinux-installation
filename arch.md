@@ -17,12 +17,281 @@ ping www.google.com
 - If you have BIOS, Output will look like this
 
 ```bash
-root@archiso# ls /sys/firmware/efi/efivars
+ls /sys/firmware/efi/efivars
 file or directory does not exist
 ```
 
-## Audio Stuff
+## 3- Partationing
+
+### UEFI
+
+- Run to enter the partition manager (if a menu shows up, choose GPT option)
 
 ```bash
-sudo pacman -S bluez bluez-utils blueman pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol
+cfdisk
+```
+
+- Basic partitions
+
+| Partition | Size              | Id Type          |
+| --------- | ----------------- | ---------------- |
+| BOOT      | 512M              | EFI System       |
+| SWAP      | Double RAM        | Linux swap       |
+| SYSTEM    | Rest of your GB   | Linux filesystem |
+
+#### Format (UEFI)
+
+```bash
+mkfs.vfat -F32 /dev/sda1
+mkfs.ext4 /dev/sda3
+mkswap /dev/sda2
+swapon
+```
+
+#### Mount (UEFI)
+
+```bash
+mount /dev/sda3 /mnt
+mkdir /mnt/boot
+mkdir /mnt/boot/efi
+mount /dev/sda1 /mnt/boot/efi
+```
+
+### BIOS
+
+- Run to enter the partition manager (if a menu shows up, choose DOS option)
+
+```bash
+cfdisk
+```
+
+- Basic partitions
+
+| Partition | Type     | Size              | Id Type          |
+| --------- | -------- | ----------------- | ---------------- |
+| BOOTEABLE | Primary  | 512M              | 83 Linux         |
+| SWAP      | Primary  | Double RAM        | 82 Linux swap    |
+| SYSTEM    | Primary  | Rest of your GB   | 83 Linux         |
+
+#### Format (BIOS)
+
+```bash
+mkfs.ext2 /dev/sda1
+mkfs.ext4 /dev/sda3
+mkswap /dev/sda2
+swapon /dev/sda2
+```
+
+#### Mount (BIOS)
+
+```bash
+mount /dev/sda3 /mnt
+mkdir /mnt/boot
+mount /dev/sda1 /mnt/boot
+```
+
+## 4- Packages Installation
+
+- In All installation we will use `pacstrap /mnt pkgs` to install packages in our partations
+
+### Basic Packages
+
+- In My Case, I will install Linux-LTS Kernal you can replace `linux-lts` with Kernal do you like
+
+```bash
+pacstrap /mnt base linux-lts linux-firmware sudo git
+```
+
+### Boot Stuff
+
+- In My Case, I will install GRUB
+
+```bash
+pacstrap /mnt grub 
+```
+
+- Install this Package if your computer have UEFI
+
+```bash
+pacstrap /mnt efibootmgr
+```
+
+### Audio Stuff
+
+```bash
+pacstrap /mnt bluez bluez-utils blueman pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol
+```
+
+### Editors
+
+```bash
+pacstrap /mnt nano vim neovim
+```
+
+### Browsers
+
+```bash
+pacstrap /mnt firefox
+```
+
+### Display Server
+
+```bash
+pacstrap /mnt xorg xorg-init xorg-server
+```
+
+### Additional (But Recommended)
+
+```bash
+pacstrap /mnt man-db man-pages htop wget curl openssh unzip zip tar bash-completion
+```
+
+### All in One Command
+
+```bash
+pacstrap /mnt base linux-lts linux-firmware sudo git grub efibootmgr bluez bluez-utils blueman pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol nano vim neovim firefox xorg xorg-init xorg-server man-db man-pages htop wget curl openssh unzip zip tar bash-completion
+```
+
+## 5- Configuring the System
+
+### Fstab
+
+- Generate an `fstab` file to define how disk partitions, block devices, or remote filesystems should be mounted into the filesystem.
+
+```bash
+genfstab -U -p /mnt >> /mnt/etc/fstab
+```
+
+### Chroot
+
+Change root into the new system that we just installed.
+
+``` bash
+arch-chroot /mnt
+```
+
+### Locale
+
+Uncomment the `en_US.UTF-8 UTF-8` line in `/etc/locale.gen` and generate the locale.
+
+```bash
+locale-gen
+```
+
+Create the `locale.conf` file and set the `LANG` variable accordingly.
+
+```bash
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+```
+
+### Time Zone
+
+Set the time zone.
+
+```bash
+ln -sf /usr/share/zoneinfo/Africa/City /etc/localtime
+```
+
+### Set Local Time
+
+To set the time for the system, run this command:
+
+```bash
+hwclock --systohc
+```
+
+And check the time:
+
+```bash
+date
+```
+
+### Hostname
+
+Create the `hostname` file and set the hostname.
+
+```bash
+echo "arch" > /etc/hostname
+```
+
+You also need to add this name to the `/etc/hosts` file.
+
+```bash
+vim /etc/hosts
+```
+
+and add the following lines:
+
+```txt
+127.0.0.1        localhost
+::1              localhost
+127.0.1.1        arch
+```
+
+### Set the Root Password
+
+```bash
+passwd
+```
+
+### Enable Network Manager
+
+```bash
+systemctl enable NetworkManager
+```
+
+#### Install the bootloader
+
+- UEFI
+
+```bash
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+```
+
+- BIOS
+
+```bash
+grub-install -o /dev/sda
+```
+
+Generate the `grub` configuration file.
+
+```bash
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+### Add a New User
+
+- Create a new user.
+
+```bash
+useradd -m -G wheel -s /bin/bash username
+```
+
+- Set the password for the new user.
+
+```bash
+passwd username
+```
+
+Give the new user sudo privileges.
+
+Open the `/etc/sudoers` file using the `visudo` command.
+
+```bash
+visudo
+```
+
+and uncomment the following line:
+
+```txt
+%wheel ALL=(ALL) ALL
+```
+
+## Reboot
+
+```bash
+exit #exit from arch-chroo
+umount -R /mnt # unount partations
+reboot
 ```
