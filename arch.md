@@ -20,3 +20,9 @@ ping www.google.com
 root@archiso# ls /sys/firmware/efi/efivars
 file or directory does not exist
 ```
+
+## Audio Stuff
+
+```bash
+sudo pacman -S bluez bluez-utils blueman pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol
+```
