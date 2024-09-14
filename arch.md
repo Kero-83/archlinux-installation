@@ -116,10 +116,22 @@ pacstrap /mnt grub
 pacstrap /mnt efibootmgr
 ```
 
+### Blutooth Stuff
+
+```bash
+pacstrap /mnt bluez bluez-utils blueman
+```
+
 ### Audio Stuff
 
 ```bash
-pacstrap /mnt bluez bluez-utils blueman pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol
+pacstrap /mnt pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol
+```
+
+### Networking Stuff
+
+```bash
+pacstrap /mnt networkmanager openssh dhcpcd wpa_supplicant curl wget netctl
 ```
 
 ### Editors
@@ -134,22 +146,16 @@ pacstrap /mnt nano vim neovim
 pacstrap /mnt firefox
 ```
 
-### Display Server
-
-```bash
-pacstrap /mnt xorg xorg-init xorg-server
-```
-
 ### Additional (But Recommended)
 
 ```bash
-pacstrap /mnt man-db man-pages htop wget curl openssh unzip zip tar bash-completion
+pacstrap /mnt man-db man-pages htop unzip zip tar bash-completion xdg-user-dirs
 ```
 
 ### All in One Command
 
 ```bash
-pacstrap /mnt base linux-lts linux-firmware sudo git grub efibootmgr bluez bluez-utils blueman pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol nano vim neovim firefox xorg xorg-init xorg-server man-db man-pages htop wget curl openssh unzip zip tar bash-completion
+pacstrap /mnt base linux-lts linux-firmware sudo git grub efibootmgr bluez bluez-utils blueman pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol networkmanager openssh dhcpcd wpa_supplicant curl wget netctl nano vim neovim firefox man-db man-pages htop unzip zip tar bash-completion xdg-user-dirs 
 ```
 
 ## 5- Configuring the System
@@ -251,7 +257,7 @@ grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 - BIOS
 
 ```bash
-grub-install -o /dev/sda
+grub-install /dev/sda
 ```
 
 Generate the `grub` configuration file.

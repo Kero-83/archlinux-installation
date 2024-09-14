@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-pacstrap /mnt base linux-lts linux-firmware sudo git grub efibootmgr bluez bluez-utils blueman pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol nano vim neovim firefox xorg xorg-init xorg-server man-db man-pages htop wget curl openssh unzip zip tar bash-completion
+pacstrap /mnt base linux-lts linux-firmware sudo git grub efibootmgr bluez bluez-utils blueman pipewire pipewire-pulse pipewire-alsa pipewire-jack pavucontrol nano vim neovim firefox xorg xorg-init xorg-server man-db man-pages htop wget curl openssh unzip zip tar bash-completion xdg-user-dirs
 genfstab -U -p /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
 locale-gen
