@@ -99,7 +99,7 @@ mount /dev/sda1 /mnt/boot
 - In My Case, I will install Linux-LTS Kernal you can replace `linux-lts` with Kernal do you like
 
 ```bash
-pacstrap /mnt base linux-lts linux-firmware sudo git
+pacstrap /mnt base linux-lts linux-lts-headers linux-firmware sudo git
 ```
 
 ### Boot Stuff
