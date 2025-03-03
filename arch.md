@@ -92,6 +92,11 @@ mount /dev/sda1 /mnt/boot
 
 ## 4- Packages Installation
 
+- First install archlinux-keyring
+### Archlinux-Keyring
+```bash
+pacman -Syy archlinux-keyring
+```
 - In All installation we will use `pacstrap /mnt pkgs` to install packages in our partations
 
 ### Basic Packages
